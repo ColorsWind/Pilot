@@ -16,8 +16,16 @@ void main()
     highp float _COLORS      = float(lut_tex_size.y);
 
     highp vec4 color       = subpassLoad(in_color).rgba;
-    
-    // texture(color_grading_lut_texture_sampler, uv)
 
-    out_color = color;
+    highp float b = color.b * _COLORS;
+    highp float y = color.g;
+
+    highp float lx = floor(b) / _COLORS + color.r / _COLORS;
+    highp vec4 color_lb = texture(color_grading_lut_texture_sampler, vec2(lx, y));
+
+    highp float rx = ceil(b) / _COLORS + color.r / _COLORS;
+    highp vec4 color_ub = texture(color_grading_lut_texture_sampler, vec2(rx, y));
+
+    highp vec4 mixColor = mix(color_lb, color_ub, fract(b));
+    out_color = mixColor;
 }
